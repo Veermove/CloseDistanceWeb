@@ -2,6 +2,8 @@ const canvasSizeX = 1000;
 const canvasSizeY = canvasSizeX;
 const canvasPosX = 0;
 const canvasPosY = 0;
+
+const breakpoint = 8;
 const pointsNumber = 500;
 
 let canvas = d3.select("body")
@@ -25,9 +27,19 @@ const main = () => {
         drawCircle(points[i].x, points[i].y);
     }
 
-    let grid = generateGrid(points);
-    points.forEach(point => findNearestAndDraw(grid, point));
 
+    let t0 = performance.now();
+    let grid = generateGrid(points);
+
+    let connected = points.slice();
+    connected.forEach(point => {
+        findNearestAndDraw(grid, point);
+    });
+
+    let t1 = performance.now();
+
+
+    console.log("time: " + (t1 - t0) + "ms");
 }
 
 const generateGrid = (setOfPoints) => {
