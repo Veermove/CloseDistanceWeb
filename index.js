@@ -7,18 +7,18 @@ const pointsNumber = 500;
 const minDist = 0;
 
 const searchSize = 1;
+let indexingHelper = (searchSize * 2 ) + 1;
 // searchSize, SquaresLookedAt
 //     1:      3x3
 //     2:      5x5
 //     3:      7x7
 //     ...
-let indexingHelper = (searchSize * 2 ) + 1;
+
 
 let canvas = d3.select("body")
     .append("svg")
     .attr("width", canvasSizeX)
     .attr("height", canvasSizeY);
-
 
 const main = () => {
     // generate scattered points and save them in an array
@@ -29,26 +29,54 @@ const main = () => {
         p.y = ( Math.random() * canvasSizeY);
         points.push(p);
     }
-    // draw points from array
-    for (let i = 0; i < points.length; i++) {
-        drawCircle(points[i].x, points[i].y);
-    }
+    // draw points from array and connect them to SVG circles
+    let Circles = canvas.selectAll("cricle")
+                        .data(points)
+                        .enter()
+                            .append("circle")
+                            .attr("cx", (d) => { return d.x; })
+                            .attr("cy", (d) => { return d.y; })
+                            .attr("fill", "red")
+                            .attr("r", 3);
 
+    // NOTE TO SELF
+    // TO REDRAW IE. SET OF POINTS USE
+    //     Circles.attr("cx", (d) => { return d.x; })
+    //            .attr("cy", (d) => { return d.y; });
+    // ADD ALL CHANGED ATTRIBUTES
 
     let t0 = performance.now();
+
+    // generate grid and fill it with points from array
     let grid = generateGrid(points);
 
-
-    let connected = points.slice();
-    connected.forEach(point => {
-        findNearestAndDraw(grid, point);
+    // for each point calcualte all outgoing lines
+    // calculated lines store in 'allLines' array
+    // line consists of starting point as 'start' and
+    // ending point as 'end'
+    let allLines = [];
+    points.forEach(point => {
+        allLines = allLines.concat( findNearest(grid, point) );
     });
-    let t1 = performance.now();
 
+    // draw lines from array and connect them to SVG lines
+    let line = canvas.selectAll("line")
+                .data(allLines)
+                .enter()
+                .append("line")
+                    .attr("x1", (d) => { return d.start.x; })
+                    .attr("y1", (d) => { return d.start.y; })
+                    .attr("x2", (d) => { return d.end.x; })
+                    .attr("y2", (d) => { return d.end.y; })
+                    .attr("stroke", "red")
+                    .attr("stroke-width", 1);
+
+    let t1 = performance.now();
     console.log("time: " + (t1 - t0) + "ms");
 }
 
-const findNearestAndDraw = (grid, currentPoint) => {
+// returns array of lines to be drawn and asigned to SVGs
+const findNearest = (grid, currentPoint) => {
 
     let distances = [];
 
@@ -88,16 +116,15 @@ const findNearestAndDraw = (grid, currentPoint) => {
         distances.splice(minIndex, 1);
     }
 
-    // Draw line from current point to each of the new found points
+    // Create array of lines to be drawn
+    let lines = [];
     pointsToDraw.forEach(point => {
-        let line = canvas.append("line")
-            .attr("x1", point.x)
-            .attr("y1", point.y)
-            .attr("x2", currentPoint.x)
-            .attr("y2", currentPoint.y)
-            .attr("stroke", "red")
-            .attr("stroke-width", 1);
+        let curLine = {};
+        curLine.start = point;
+        curLine.end = currentPoint;
+        lines.push(curLine);
     });
+    return lines;
 }
 
 const calcDistance = (pointA, pointB) => {
@@ -158,6 +185,7 @@ const drawCircle = (x, y) => {
         .attr("cy", y)
         .attr("fill", "red")
         .attr("r", 3);
+    return dot1;
 }
 
 
