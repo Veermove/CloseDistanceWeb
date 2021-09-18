@@ -75,7 +75,8 @@ const main = () => {
     console.log("time: " + (t1 - t0) + "ms");
 }
 
-// returns array of lines to be drawn and asigned to SVGs
+// returns array of lines to be drawn from current point
+// and asigned to SVGs
 const findNearest = (grid, currentPoint) => {
 
     let distances = [];
