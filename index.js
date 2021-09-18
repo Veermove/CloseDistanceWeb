@@ -1,9 +1,19 @@
+// canvas size
 const canvasSizeX = 1000;
 const canvasSizeY = canvasSizeX;
+
+// canvas position/offset
 const canvasPosX = 0;
 const canvasPosY = 0;
+
+// number of points to be generated
 const pointsNumber = 500;
 
+// number of lines drawn from each point
+const n = 4;
+
+// ignore points with distance (from currentPoint when calculating outgoing lines)
+// smaller than minDist
 const minDist = 0;
 
 const searchSize = 1;
@@ -87,9 +97,11 @@ const findNearest = (grid, currentPoint) => {
 
     for (let dx = -searchSize; dx < indexingHelper; dx++) {
         for (let dy = -searchSize; dy < indexingHelper; dy ++) {
+
             // ignore border cases
             if (!grid[xAddres + dx] || !grid[xAddres + dx][yAddres + dy]) { continue; }
 
+            // for each point in current square calculate and store distance to given point
             grid[xAddres + dx][yAddres + dy].pointsInside.forEach(point => {
                 let distPoint = {};
                 distPoint.p = point;
@@ -102,12 +114,13 @@ const findNearest = (grid, currentPoint) => {
     }
 
     // find n smallest values by distance
-    let n = 4;
     let pointsToDraw = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < n; i++) {
+
         let min = distances[0].dist;
         let minIndex = 0;
         for (let j = 0; j < distances.length; j++) {
+
             if (min > distances[j].dist) {
                 min = distances[j].dist;
                 minIndex = j;
@@ -146,6 +159,7 @@ const generateGrid = (setOfPoints) => {
         grid[i] = new Array(gridSize);
     }
 
+    // for all squares in grid:
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
             grid[i][j] = {};
@@ -179,15 +193,5 @@ const generateGrid = (setOfPoints) => {
 
     return grid;
 }
-
-const drawCircle = (x, y) => {
-    let dot1 = canvas.append("circle")
-        .attr("cx", x)
-        .attr("cy", y)
-        .attr("fill", "red")
-        .attr("r", 3);
-    return dot1;
-}
-
 
 window.addEventListener("load", main);
