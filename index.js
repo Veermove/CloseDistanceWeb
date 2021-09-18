@@ -48,22 +48,6 @@ const main = () => {
     console.log("time: " + (t1 - t0) + "ms");
 }
 
-
-
-// const findNearestAndDraw = (grid, currentPoint) => {
-
-//     let lines = [];
-
-//     // search around square of current point
-//     let xAddres = Math.floor( currentPoint.x / (canvasSizeX / grid.length));
-//     let yAddres = Math.floor( currentPoint.y / (canvasSizeY / grid.length));
-
-//     function find(startingSearchSize) {
-
-//     }
-// }
-
-
 const findNearestAndDraw = (grid, currentPoint) => {
 
     let distances = [];
