@@ -7,7 +7,7 @@ const canvasPosX = 0;
 const canvasPosY = 0;
 
 // number of points to be generated
-const pointsNumber = 500;
+const pointsNumber = 200;
 
 // number of lines drawn from each point
 const n = 4;
