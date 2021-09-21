@@ -7,7 +7,7 @@ const canvasPosX = 0;
 const canvasPosY = 0;
 
 // number of points to be generated
-const pointsNumber = 200;
+const pointsNumber = 250;
 
 // number of lines drawn from each point
 const n = 4;
@@ -41,8 +41,6 @@ const main = () => {
         p.y = ( Math.random() * canvasSizeY);
         p.velX = ( (Math.random() * ( 2 * maxPointVelocity ) - maxPointVelocity) );
         p.velY = ( (Math.random() * ( 2 * maxPointVelocity ) - maxPointVelocity) );
-        // p.velX = ( (Math.random() * maxPointVelocity) );
-        // p.velY = ( (Math.random() * maxPointVelocity) );
         points.push(p);
     }
     // draw points from array and connect them to SVG circles
@@ -65,31 +63,33 @@ const main = () => {
     let grid = generateGrid(points);
 
     // for each point calcualte all outgoing lines
-    // calculated lines store in 'allLines' array
-    // line consists of starting point as 'start' and
-    // ending point as 'end'
+    // calculated lines store in '.connect' array attribute
     let allLines = [];
     points.forEach(point => {
-        allLines = allLines.concat( findNearest(grid, point) );
+        allLines.push( findNearest(grid, point) );
     });
 
-    // draw lines from array and connect them to SVG lines
-    let Lines = canvas.selectAll("line")
-                .data(allLines)
-                .enter()
-                .append("line")
-                    .attr("x1", (d) => { return d.start.x; })
-                    .attr("y1", (d) => { return d.start.y; })
-                    .attr("x2", (d) => { return d.end.x; })
-                    .attr("y2", (d) => { return d.end.y; })
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 1);
+    let colorGrad = d3.scaleLinear().domain([0, 200]).range(["red", "blue"]);
 
+    // draw lines from array
+    allLines.forEach(point => {
+        point.connect.forEach(endPoint => {
+            let Lines = canvas.append("line")
+                    .attr("x1", point.x)
+                    .attr("y1", point.y)
+                    .attr("x2", endPoint.x)
+                    .attr("y2", endPoint.y)
+                    .attr("stroke", colorGrad(calcDistance(point, endPoint)))
+                    .attr("stroke-width", 1);
+        });
+    });
+
+
+
+    window.dontDoIt = true;
     let interval = 45;
     setInterval(() => {
-        if (window.dontDoIt) return;
-
-        let t0 = performance.now();
+        if (!window.dontDoIt) return;
 
         function resetGrid() {
             for (let i = 0; i < grid.length; i++) {
@@ -100,47 +100,52 @@ const main = () => {
             }
         }
         resetGrid();
-
-        allLines = [];
-
+        canvas.selectAll("line").remove();
         points.forEach(point => {
-            point.x = (point.x + (point.velX * interval)) % canvasSizeX;
-            point.y = (point.y + (point.velY * interval)) % canvasSizeY;
+
+            let DeltaX = point.velX * interval;
+            let DeltaY = point.velY * interval;
+            point.x =  ((point.x + DeltaX) + canvasSizeX) % canvasSizeX ;
+            point.y =  ((point.y + DeltaY) + canvasSizeY) % canvasSizeY ;
 
             let xHelp = (canvasSizeX / grid.length);
             let yHelp = (canvasSizeY / grid.length);
 
             // find place for given point in the grid
-            let xAddres = (Math.floor( point.x / xHelp) + grid.length) % grid.length;
-            let yAddres = (Math.floor( point.y / yHelp) + grid[0].length) % grid[0].length;
+            let xAddres = Math.abs((Math.floor( point.x / xHelp) + grid.length) % grid.length);
+            let yAddres = Math.abs((Math.floor( point.y / yHelp) + grid[0].length) % grid[0].length);
 
             // store given point in the grid
             grid[xAddres][yAddres].pointsInside.push(point);
-            let addition = findNearest(grid, point)
-
-            allLines = allLines.concat( addition );
         });
 
         Circles.attr("cx", (d) => { return d.x; })
                .attr("cy", (d) => { return d.y; });
 
-
-        canvas.selectAll("line").remove();
-        allLines.forEach(line => {
-            if (calcDistance(line.start, line.end) < maxLineLength) {
-                let lix = canvas.append("line")
-                .attr("x1", line.start.x)
-                .attr("y1", line.start.y)
-                .attr("x2", line.end.x)
-                .attr("y2", line.end.y)
-                .attr("stroke", "red")
-                .attr("stroke-width", 1);
-
-            }
+        allLines = [];
+        points.forEach(point => {
+            point.connect = [];
+            allLines.push( findNearest(grid, point) );
         });
 
-        let t1 = performance.now();
-        console.log("time: " + (t1 - t0) + "ms");
+        // draw lines from array
+        allLines.forEach(point => {
+            point.connect.forEach(endPoint => {
+                let dist = calcDistance(point, endPoint)
+                if (dist < maxLineLength)
+                {
+                    let Lines = canvas.append("line")
+                        .attr("x1", point.x)
+                        .attr("y1", point.y)
+                        .attr("x2", endPoint.x)
+                        .attr("y2", endPoint.y)
+                        .attr("stroke", colorGrad(dist))
+                        .attr("stroke-width", 1);
+                }
+            });
+        });
+
+
     }, interval);
 }
 
@@ -180,9 +185,9 @@ const findNearest = (grid, currentPoint) => {
     }
 
 
-
-    if (distances.length == 0 || distances[0].dist == 0) { return []; }
-    // if (!distances[0]) { console.log('HUJ'); return []; }
+    currentPoint.connect = [];
+    if (distances.length == 0 || distances[0].dist == 0) { return currentPoint; }
+    if (!distances[0]) { console.log('HUJ'); return currentPoint; }
 
     let pointsToDraw = [];
     for (let i = 0; i < n; i++) {
@@ -203,15 +208,12 @@ const findNearest = (grid, currentPoint) => {
         }
     }
 
-    // Create array of lines to be drawn
-    let lines = [];
+    // Store connections in current point
+
     pointsToDraw.forEach(point => {
-        let curLine = {};
-        curLine.start = point;
-        curLine.end = currentPoint;
-        lines.push(curLine);
+        currentPoint.connect.push(point);
     });
-    return lines;
+    return currentPoint;
 }
 
 const calcDistance = (pointA, pointB) => {
