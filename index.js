@@ -69,6 +69,8 @@ const main = () => {
         allLines.push( findNearest(grid, point) );
     });
 
+    let colorGrad = d3.scaleLinear().domain([0, 250]).range(["red", "blue"]);
+
     // draw lines from array
     allLines.forEach(point => {
         point.connect.forEach(endPoint => {
@@ -77,10 +79,12 @@ const main = () => {
                     .attr("y1", point.y)
                     .attr("x2", endPoint.x)
                     .attr("y2", endPoint.y)
-                    .attr("stroke", "red")
+                    .attr("stroke", colorGrad(calcDistance(point, endPoint)))
                     .attr("stroke-width", 1);
         });
     });
+
+
 
     window.dontDoIt = true;
     let interval = 45;
@@ -127,14 +131,15 @@ const main = () => {
         // draw lines from array
         allLines.forEach(point => {
             point.connect.forEach(endPoint => {
-                if (calcDistance(point, endPoint) < maxLineLength)
+                let dist = calcDistance(point, endPoint)
+                if (dist < maxLineLength)
                 {
                     let Lines = canvas.append("line")
                         .attr("x1", point.x)
                         .attr("y1", point.y)
                         .attr("x2", endPoint.x)
                         .attr("y2", endPoint.y)
-                        .attr("stroke", "red")
+                        .attr("stroke", colorGrad(dist))
                         .attr("stroke-width", 1);
                 }
             });
