@@ -7,7 +7,7 @@ const canvasPosX = 0;
 const canvasPosY = 0;
 
 // number of points to be generated
-const pointsNumber = 100;
+const pointsNumber = 4;
 
 // number of lines drawn from each point
 const n = 4;
@@ -25,7 +25,7 @@ let indexingHelper = (searchSize * 2 ) + 1;
 //     ...
 
 const maxPointVelocity = 0.1;
-const maxLineLength = 150;
+const maxLineLength = 1000;
 
 let canvas = d3.select("body")
     .append("svg")
@@ -69,7 +69,7 @@ const main = () => {
         allLines.push( findNearest(grid, point) );
     });
 
-    let colorGrad = d3.scaleLinear().domain([0, 250]).range(["red", "blue"]);
+    let colorGrad = d3.scaleLinear().domain([0, 1000]).range(["red", "blue"]);
 
     // draw lines from array
     allLines.forEach(point => {
