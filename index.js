@@ -2,10 +2,6 @@
 const canvasSizeX = document.querySelector('#background').offsetWidth;
 const canvasSizeY = document.querySelector('#background').offsetHeight;
 
-// canvas position/offset
-const canvasPosX = 0;
-const canvasPosY = 0;
-
 // number of points to be generated
 const pointsNumber = 200;
 
@@ -27,7 +23,7 @@ let indexingHelper = (searchSize * 2 ) + 1;
 const maxPointVelocity = 0.06;
 const maxLineLength = canvasSizeX * 0.15;
 
-let canvas = d3.select("div")
+let canvas = d3.select("#background")
     .append("svg")
     .attr("width", canvasSizeX)
     .attr("height", canvasSizeY);
