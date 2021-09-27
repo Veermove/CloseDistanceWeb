@@ -55,7 +55,7 @@ const main = () => {
     let grid = generateGrid(points);
 
     // create color gradient based on distance
-    let colorGrad = d3.scaleLinear().domain([0, maxLineLength]).range(["red", "blue"]);
+    let colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
 
     // function to redrawLines called every frame
     // =======================================================================================
@@ -266,5 +266,18 @@ const generateGrid = (setOfPoints) => {
 
     return grid;
 }
+
+//takes in sorted by .x set of points
+const sqrMethod = (currentPoint, setOfPoints) => {
+    let delta = 10;
+    let square = {};
+    square.top = currentPoint.y - delta;
+    square.bot = currentPoint.y + delta;
+    square.left = currentPoint.x - delta;
+    square.righ = currentPoint.x + delta;
+    let found = []
+
+}
+
 
 window.addEventListener("load", main);
