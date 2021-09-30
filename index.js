@@ -1,6 +1,6 @@
 // canvas size
-const canvasSizeX = document.querySelector('#background').offsetWidth;
-const canvasSizeY = document.querySelector('#background').offsetHeight;
+let canvasSizeX = document.querySelector('#background').offsetWidth;
+let canvasSizeY = document.querySelector('#background').offsetHeight;
 
 // number of points to be generated
 const pointsNumber = 200;
@@ -25,7 +25,11 @@ let indexingHelper = (searchSize * 2 ) + 1;
 // max point velocity in px/ms
 const maxPointVelocity = 0.06;
 
-const maxLineLength = (canvasSizeX * 0.15);
+// max length of drawn line
+let maxLineLength = (canvasSizeX * 0.15);
+
+// create color gradient based on distance
+let colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
 
 let canvas = d3.select("#background")
     .append("svg")
@@ -64,9 +68,6 @@ const main = () => {
 
     // generate grid and fill it with points from array
     let grid = generateGrid(points);
-
-    // create color gradient based on distance
-    let colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
 
     // create empty adjecency matrix
     let adjMatrix = new Array(pointsNumber);
@@ -391,3 +392,22 @@ const generateGrid = (setOfPoints) => {
 }
 
 window.addEventListener("load", main);
+
+// add event listener when resizing window
+window.addEventListener('resize', function(event) {
+    // save new canvas size
+    canvasSizeX = document.querySelector('#background').offsetWidth;
+    canvasSizeY = document.querySelector('#background').offsetHeight;
+
+    // clear canvas of lines created on old size
+    canvas.selectAll("line").remove();
+
+    // update canvas attributes
+    canvas.attr("width", canvasSizeX).attr("height", canvasSizeY);
+
+    // recalculate maxLineLength based on canvasSizeX
+    maxLineLength = (canvasSizeX * 0.15);
+
+    // recalculate color gradient based on maxLineLength
+    colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
+}, true);
