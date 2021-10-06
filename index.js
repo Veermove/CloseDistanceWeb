@@ -26,7 +26,7 @@ let indexingHelper = (searchSize * 2 ) + 1;
 const maxPointVelocity = 0.06;
 
 // max length of drawn line
-let maxLineLength = (canvasSizeX * 0.15);
+let maxLineLength = canvasSizeX >= canvasSizeY ? (canvasSizeX * 0.15) : (canvasSizeY * 0.15);
 
 // create color gradient based on distance
 let colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
@@ -405,8 +405,8 @@ window.addEventListener('resize', function(event) {
     // update canvas attributes
     canvas.attr("width", canvasSizeX).attr("height", canvasSizeY);
 
-    // recalculate maxLineLength based on canvasSizeX
-    maxLineLength = (canvasSizeX * 0.15);
+    // recalculate maxLineLength based on greater length of canvas
+    maxLineLength = canvasSizeX >= canvasSizeY ? (canvasSizeX * 0.15) : (canvasSizeY * 0.15);
 
     // recalculate color gradient based on maxLineLength
     colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
