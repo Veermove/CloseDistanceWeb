@@ -411,4 +411,3 @@ window.addEventListener('resize', function(event) {
     // recalculate color gradient based on maxLineLength
     colorGrad = d3.scaleLinear().domain([0, 0.7 * maxLineLength]).range(["red", "blue"]);
 }, true);
-
