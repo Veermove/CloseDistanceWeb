@@ -348,7 +348,7 @@ const findNearest = (grid, currentPoint) => {
 const calcDistance = (pointA, pointB) => {
     let xDif = (pointA.x - pointB.x);
     let yDif = (pointA.y - pointB.y);
-    return Math.sqrt( (xDif * xDif) + (yDif * yDif) );
+    return (xDif * xDif) + (yDif * yDif);
 }
 
 const generateGrid = (setOfPoints) => {
